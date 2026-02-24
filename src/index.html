@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
   <meta charset="UTF-8">
   <title>Modul323 Quizkarten</title>
@@ -15,13 +16,15 @@
 
   <main class="max-w-6xl mx-auto mt-10">
 
-    <div class="mb-6">
-      <button class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-xl shadow">
+    <div class="mb-6 flex gap-3">
+      <input id="questionInput" placeholder="Question" class="border rounded p-2 flex-1">
+      <input id="answerInput" placeholder="Answer" class="border rounded p-2 flex-1">
+      <button onclick="addCard()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-xl shadow">
         + Add Flashcard
       </button>
     </div>
 
-    <div class="grid md:grid-cols-3 gap-6">
+    <div id="cardContainer" class="grid md:grid-cols-3 gap-6">
 
       <div class="bg-yellow-200 p-6 rounded-2xl shadow-md flex flex-col justify-between">
         <div>
@@ -82,5 +85,7 @@
 
   </main>
 
+  <script src="index.js"></script>
 </body>
+
 </html>
