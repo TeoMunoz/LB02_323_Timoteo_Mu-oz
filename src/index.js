@@ -1,73 +1,135 @@
-//Fungtion to add a new card, show the mesage and delete the card
+// initial status of the cards
+let cards = [];
+
+// functions to interact with the status
+function createCard(question, answer){
+  return { id: Date.now(), question, answer, editing:false };
+}
+
+function addCardState(cards, card){
+  return [...cards, card];
+}
+
+function deleteCardState(cards, id){
+  return cards.filter(c => c.id !== id);
+}
+
+function toggleEditState(cards,id){
+  return cards.map(c =>
+    c.id === id ? { ...c, editing: !c.editing } : c
+  );
+}
+
+function updateCardState(cards,id,newQ,newA){
+  return cards.map(c =>
+    c.id === id ? { ...c, question:newQ, answer:newA, editing:false } : c
+  );
+}
+
+// Create the letters in HTML and Tailwind
+function render(){
+
+  const container = document.getElementById("cardContainer");
+  container.innerHTML = "";
+
+  cards.forEach(card=>{
+
+    const div = document.createElement("div");
+    div.className="bg-yellow-200 p-6 rounded-2xl shadow-md flex flex-col justify-between";
+
+    if(card.editing){
+      div.innerHTML = `
+        <div>
+          <input id="q-${card.id}" class="border p-2 w-full mb-2 rounded" value="${card.question}">
+          <input id="a-${card.id}" class="border p-2 w-full rounded" value="${card.answer}">
+        </div>
+
+        <div class="flex justify-between mt-6">
+          <button onclick="saveEdit(${card.id})"
+          class="bg-green-500 text-white px-4 py-1 rounded-lg">
+          Save
+          </button>
+
+          <button onclick="deleteCard(${card.id})"
+          class="bg-red-500 text-white px-4 py-1 rounded-lg">
+          Delete
+          </button>
+        </div>
+      `;
+    }
+    else{
+      div.innerHTML = `
+        <div>
+          <h2 class="font-semibold mb-3">${card.question}</h2>
+          <p class="text-sm text-gray-700 hidden">${card.answer}</p>
+        </div>
+
+        <div class="flex justify-between mt-6">
+
+          <button onclick="toggleAnswer(this)"
+          class="bg-blue-500 text-white px-4 py-1 rounded-lg">
+          Show
+          </button>
+
+          <button onclick="deleteCard(${card.id})"
+          class="bg-red-500 text-white px-4 py-1 rounded-lg">
+          Delete
+          </button>
+
+          <button onclick="editCard(${card.id})"
+          class="bg-yellow-500 text-white px-4 py-1 rounded-lg">
+          Edit
+          </button>
+
+        </div>
+      `;
+    }
+
+    container.appendChild(div);
+  });
+}
+
+//events, create, edit, view response, delete
 function addCard(){
 
-const question = document.getElementById("questionInput").value;
-const answer = document.getElementById("answerInput").value;
+  const q = questionInput.value;
+  const a = answerInput.value;
 
-if(!question || !answer){
-alert("Bitte Frage und Antwort eingeben!");
-return;
+  if(!q || !a){
+    alert("Bitte Frage und Antwort eingeben!");
+    return;
+  }
+
+  const newCard = createCard(q,a);
+  cards = addCardState(cards,newCard);
+
+  render();
+
+  questionInput.value="";
+  answerInput.value="";
 }
 
-const card = document.createElement("div");
-card.className="bg-yellow-200 p-6 rounded-2xl shadow-md flex flex-col justify-between";
-
-card.innerHTML = `
-<div>
-<h2 class="font-semibold mb-3 question">${question}</h2>
-<p class="text-sm text-gray-700 hidden answer">${answer}</p>
-</div>
-
-<div class="flex justify-between mt-6">
-<button onclick="this.closest('div').previousElementSibling.querySelector('.answer').classList.toggle('hidden')"
-class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded-lg">
-Show
-</button>
-
-<button onclick="this.parentElement.parentElement.remove()"
-class="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded-lg">
-Delete
-</button>
-
-<button onclick="editCard(this)"
-class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-1 rounded-lg">
-Edit
-</button>
-</div>
-`;
-
-document.getElementById("cardContainer").appendChild(card);
-
-document.getElementById("questionInput").value="";
-document.getElementById("answerInput").value="";
+function deleteCard(id){
+  cards = deleteCardState(cards,id);
+  render();
 }
 
-function editCard(btn){
-
-const card = btn.closest(".bg-yellow-200");
-const questionEl = card.querySelector(".question");
-const answerEl = card.querySelector(".answer");
-
-if(btn.innerText === "Edit"){
-
-const q = questionEl.innerText;
-const a = answerEl.innerText;
-
-questionEl.innerHTML = `<input class="border p-1 rounded w-full" value="${q}">`;
-answerEl.innerHTML = `<input class="border p-1 rounded w-full" value="${a}">`;
-answerEl.classList.remove("hidden");
-
-btn.innerText = "Save";
+function toggleAnswer(btn){
+  btn.closest(".bg-yellow-200")
+     .querySelector("p")
+     .classList.toggle("hidden");
 }
-else{
 
-const newQ = questionEl.querySelector("input").value;
-const newA = answerEl.querySelector("input").value;
-
-questionEl.innerText = newQ;
-answerEl.innerText = newA;
-answerEl.classList.add("hidden");
-
-btn.innerText = "Edit";
+function editCard(id){
+  cards = toggleEditState(cards,id);
+  render();
 }
+
+function saveEdit(id){
+
+  const newQ = document.getElementById(`q-${id}`).value;
+  const newA = document.getElementById(`a-${id}`).value;
+
+  cards = updateCardState(cards,id,newQ,newA);
+  render();
 }
