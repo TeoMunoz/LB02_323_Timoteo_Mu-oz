@@ -2,42 +2,35 @@
 let cards = [];
 
 // functions to interact with the status
-function createCard(question, answer){
-  return { id: Date.now(), question, answer, editing:false };
+function createCard(question, answer) {
+  return { id: Date.now(), question, answer, editing: false, rank: 0 };
 }
 
-function addCardState(cards, card){
-  return [...cards, card];
+function deleteCardState(cards, id) {
+  return cards.filter((c) => c.id !== id);
 }
 
-function deleteCardState(cards, id){
-  return cards.filter(c => c.id !== id);
+function toggleEditState(cards, id) {
+  return cards.map((c) => (c.id === id ? { ...c, editing: !c.editing } : c));
 }
 
-function toggleEditState(cards,id){
-  return cards.map(c =>
-    c.id === id ? { ...c, editing: !c.editing } : c
-  );
-}
-
-function updateCardState(cards,id,newQ,newA){
-  return cards.map(c =>
-    c.id === id ? { ...c, question:newQ, answer:newA, editing:false } : c
+function updateCardState(cards, id, newQ, newA) {
+  return cards.map((c) =>
+    c.id === id ? { ...c, question: newQ, answer: newA, editing: false } : c,
   );
 }
 
 // Create the letters in HTML and Tailwind
-function render(){
-
+function render() {
   const container = document.getElementById("cardContainer");
   container.innerHTML = "";
 
-  cards.forEach(card=>{
-
+  cards.forEach((card) => {
     const div = document.createElement("div");
-    div.className="bg-yellow-200 p-6 rounded-2xl shadow-md flex flex-col justify-between";
+    div.className =
+      "bg-yellow-200 p-6 rounded-2xl shadow-md flex flex-col justify-between";
 
-    if(card.editing){
+    if (card.editing) {
       div.innerHTML = `
         <div>
           <input id="q-${card.id}" class="border p-2 w-full mb-2 rounded" value="${card.question}">
@@ -56,12 +49,15 @@ function render(){
           </button>
         </div>
       `;
-    }
-    else{
+    } else {
       div.innerHTML = `
         <div>
-          <h2 class="font-semibold mb-3">${card.question}</h2>
-          <p class="text-sm text-gray-700 hidden">${card.answer}</p>
+          h2 class="font-semibold mb-3">${card.question}</h2>
+        <p class="text-sm text-gray-700 hidden">${card.answer}</p>
+
+  <p class="text-xs mt-2 text-gray-600">
+    Rank: <span class="font-bold">${card.rank}</span>
+  </p>
         </div>
 
         <div class="flex justify-between mt-6">
@@ -81,6 +77,21 @@ function render(){
           Edit
           </button>
 
+          <button onclick="rateCard(${card.id},0)"
+  class="bg-red-400 text-white px-4 py-1 rounded-lg">
+  Bad
+  </button>
+
+  <button onclick="rateCard(${card.id},1)"
+  class="bg-green-500 text-white px-4 py-1 rounded-lg">
+  Good
+  </button>
+
+  <button onclick="rateCard(${card.id},2)"
+  class="bg-purple-500 text-white px-4 py-1 rounded-lFFFg">
+  Perfect
+  </button>
+
         </div>
       `;
     }
@@ -90,46 +101,51 @@ function render(){
 }
 
 //events, create, edit, view response, delete
-function addCard(){
-
+function addCard() {
   const q = questionInput.value;
   const a = answerInput.value;
 
-  if(!q || !a){
+  if (!q || !a) {
     alert("Bitte Frage und Antwort eingeben!");
     return;
   }
 
-  const newCard = createCard(q,a);
-  cards = addCardState(cards,newCard);
+  function addCardState(cards, card) {
+    return [...cards, card];
+  }
+
+  const newCard = createCard(q, a);
+  cards = addCardState(cards, newCard);
 
   render();
 
-  questionInput.value="";
-  answerInput.value="";
+  questionInput.value = "";
+  answerInput.value = "";
 }
 
-function deleteCard(id){
-  cards = deleteCardState(cards,id);
+function deleteCard(id) {
+  cards = deleteCardState(cards, id);
   render();
 }
 
-function toggleAnswer(btn){
-  btn.closest(".bg-yellow-200")
-     .querySelector("p")
-     .classList.toggle("hidden");
+function toggleAnswer(btn) {
+  btn.closest(".bg-yellow-200").querySelector("p").classList.toggle("hidden");
 }
 
-function editCard(id){
-  cards = toggleEditState(cards,id);
+function editCard(id) {
+  cards = toggleEditState(cards, id);
   render();
 }
 
-function saveEdit(id){
-
+function saveEdit(id) {
   const newQ = document.getElementById(`q-${id}`).value;
   const newA = document.getElementById(`a-${id}`).value;
 
-  cards = updateCardState(cards,id,newQ,newA);
+  cards = updateCardState(cards, id, newQ, newA);
+  render();
+}
+
+function rateCard(id, points) {
+  cards = cards.map((c) => (c.id === id ? { ...c, rank: c.rank + points } : c));
   render();
 }
