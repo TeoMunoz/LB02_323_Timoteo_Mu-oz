@@ -25,7 +25,9 @@ function render() {
   const container = document.getElementById("cardContainer");
   container.innerHTML = "";
 
-  cards.forEach((card) => {
+  [...cards]
+.sort((a, b) => a.rank - b.rank)
+.forEach((card) => {
     const div = document.createElement("div");
     div.className =
       "bg-yellow-200 p-6 rounded-2xl shadow-md flex flex-col justify-between";
@@ -52,7 +54,7 @@ function render() {
     } else {
       div.innerHTML = `
         <div>
-          h2 class="font-semibold mb-3">${card.question}</h2>
+          <h2 class="font-semibold mb-3">${card.question}</h2>
         <p class="text-sm text-gray-700 hidden">${card.answer}</p>
 
   <p class="text-xs mt-2 text-gray-600">
